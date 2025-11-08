@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Layout Cetak KTP A4</title>
+    <title>Layout Cetak KTP A4 Fleksibel</title>
     <!-- Memuat Tailwind CSS untuk tampilan modern dan responsif -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -47,7 +47,6 @@
                 /* Margin agar muat 2 kolom di A4 (2 x 86mm = 172mm, sisa 38mm untuk margin/padding) */
                 margin-right: 18mm; 
                 margin-bottom: 5mm;
-                border: 1px solid #ccc; /* Border agar terlihat lebih jelas di cetakan */
                 overflow: hidden; /* Penting untuk menjaga ukuran */
             }
 
@@ -57,7 +56,7 @@
                 object-fit: cover; /* Pastikan gambar mengisi slot tanpa distorsi berlebihan */
             }
 
-            /* Hapus border di cetakan akhir (opsional, tergantung preferensi) */
+            /* Hapus border di cetakan akhir */
             .card-slot {
                 border: none !important;
             }
@@ -65,8 +64,8 @@
 
         /* Gaya visual untuk pratinjau di layar */
         .card-slot-preview {
-            width: 150px;
-            height: 94px; /* Rasio 86:54 */
+            width: 100%; /* Agar responsif di grid */
+            height: 80px; /* Tinggi pratinjau */
             border: 2px dashed #4f46e5;
             background-color: #eef2ff;
             display: flex;
@@ -86,45 +85,58 @@
 <body class="p-4 sm:p-8">
 
     <!-- Kontrol Input (Disembunyikan saat Mencetak) -->
-    <div class="print-hidden max-w-4xl mx-auto mb-10 p-6 bg-white shadow-xl rounded-xl">
-        <h1 class="text-3xl font-extrabold text-indigo-700 mb-4">Aplikasi Layout Cetak Kartu (KTP) A4</h1>
-        <p class="text-gray-600 mb-6">Unggah foto KTP (Depan & Belakang), dan sistem akan menatanya dalam format 2 kolom untuk dicetak di kertas A4. Setiap kartu akan dicetak dengan ukuran KTP standar (86mm x 54mm).</p>
+    <div class="print-hidden max-w-5xl mx-auto mb-10 p-6 bg-white shadow-2xl rounded-xl">
+        <h1 class="text-3xl font-extrabold text-indigo-700 mb-4">Aplikasi Layout Cetak Kartu (KTP) A4 Fleksibel (8 Slot)</h1>
+        <p class="text-gray-600 mb-6">Unggah 1 hingga 8 foto untuk ditempatkan pada layout 2 kolom kertas A4. Setiap kartu akan dicetak dengan ukuran standar KTP (86mm x 54mm).</p>
 
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <!-- Unggah Sisi Depan -->
-            <div>
-                <label for="fileInputFront" class="block text-sm font-medium text-gray-700 mb-2">1. Unggah Sisi Depan KTP</label>
-                <input type="file" id="fileInputFront" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onchange="handleFileUpload('front')">
-            </div>
-            
-            <!-- Unggah Sisi Belakang -->
-            <div>
-                <label for="fileInputBack" class="block text-sm font-medium text-gray-700 mb-2">2. Unggah Sisi Belakang KTP</label>
-                <input type="file" id="fileInputBack" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" onchange="handleFileUpload('back')">
-            </div>
+        <!-- Area Unggah Foto (8 Slot) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Loop untuk 8 input file -->
+            <script>
+                // Generate 8 file upload inputs dynamically
+                document.write(
+                    Array.from({ length: 8 }, (_, i) => {
+                        const index = i + 1;
+                        return `
+                            <div>
+                                <label for="fileInput${index}" class="block text-sm font-medium text-gray-700 mb-2">Slot #${index}</label>
+                                <input type="file" id="fileInput${index}" accept="image/*" 
+                                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" 
+                                    onchange="handleFileUpload(${i})">
+                            </div>
+                        `;
+                    }).join('')
+                );
+            </script>
         </div>
 
         <!-- Tombol Cetak -->
         <button id="printButton" onclick="window.print()" disabled class="w-full py-3 px-4 rounded-lg text-white font-bold transition duration-300 bg-gray-400 cursor-not-allowed shadow-md">
-            Siap Mencetak (Unggah Kedua Sisi Dahulu)
+            Siap Mencetak (Unggah Minimal 1 Foto)
         </button>
-        <p id="statusMessage" class="text-center text-sm mt-3 text-red-500 hidden">Pastikan Anda telah mengunggah kedua sisi foto.</p>
+        <p id="statusMessage" class="text-center text-sm mt-3 text-red-500 hidden">Silakan unggah minimal satu foto untuk mengaktifkan tombol cetak.</p>
     </div>
 
     <!-- Area Pratinjau (Hanya terlihat di layar, bukan cetakan) -->
-    <div class="print-hidden max-w-4xl mx-auto mb-10 p-6 bg-white shadow-xl rounded-xl">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Pratinjau Layout Cetak (2 Kolom)</h2>
-        <div class="flex flex-wrap justify-center gap-4">
-            <!-- Slot Pratinjau Depan -->
-            <div id="previewFront" class="card-slot-preview rounded-lg">
-                <span class="text-xs font-semibold">Sisi Depan</span>
-            </div>
-            <!-- Slot Pratinjau Belakang -->
-            <div id="previewBack" class="card-slot-preview rounded-lg">
-                <span class="text-xs font-semibold">Sisi Belakang</span>
-            </div>
+    <div class="print-hidden max-w-5xl mx-auto mb-10 p-6 bg-white shadow-2xl rounded-xl">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Pratinjau Slot Cetak (8 Slot)</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <!-- Loop untuk 8 slot pratinjau -->
+            <script>
+                // Generate 8 preview slots dynamically
+                document.write(
+                    Array.from({ length: 8 }, (_, i) => {
+                        const index = i + 1;
+                        return `
+                            <div id="previewSlot${index}" class="card-slot-preview rounded-lg">
+                                <span class="text-xs font-semibold">Slot ${index}</span>
+                            </div>
+                        `;
+                    }).join('')
+                );
+            </script>
         </div>
-        <p class="text-center text-sm text-indigo-500 mt-4">Pratinjau ini hanya menunjukkan ukuran rasio, tata letak cetak sesungguhnya akan muncul saat Anda menekan tombol "Cetak".</p>
+        <p class="text-center text-sm text-indigo-500 mt-4">Pratinjau ini hanya menunjukkan rasio gambar yang telah diunggah.</p>
     </div>
 
     <!-- Area Konten Cetak (Disiapkan untuk A4) -->
@@ -133,62 +145,60 @@
     </div>
 
     <script>
-        // Variabel global untuk menyimpan data URL gambar
-        let imageURLs = {
-            front: null,
-            back: null
-        };
+        // Variabel global untuk menyimpan data URL gambar (8 slot: Index 0 hingga 7)
+        const MAX_SLOTS = 8;
+        let imageURLs = new Array(MAX_SLOTS).fill(null);
         
-        // Konstanta untuk jumlah duplikasi
-        const DUP_COUNT = 4;
-
         /**
          * Mengubah file yang diunggah menjadi Data URL dan memperbarui pratinjau.
-         * @param {string} side - 'front' atau 'back'
+         * @param {number} index - Index slot (0 sampai 7)
          */
-        function handleFileUpload(side) {
-            const fileInput = document.getElementById(`fileInput${side.charAt(0).toUpperCase() + side.slice(1)}`);
+        function handleFileUpload(index) {
+            const fileInput = document.getElementById(`fileInput${index + 1}`);
             const file = fileInput.files[0];
-            const previewElement = document.getElementById(`preview${side.charAt(0).toUpperCase() + side.slice(1)}`);
+            const previewElement = document.getElementById(`previewSlot${index + 1}`);
             
             // Hapus konten pratinjau sebelumnya
-            previewElement.innerHTML = ''; 
+            previewElement.innerHTML = `<span class="text-xs font-semibold">Slot ${index + 1}</span>`;
 
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const dataURL = e.target.result;
-                    imageURLs[side] = dataURL;
+                    imageURLs[index] = dataURL;
 
                     // Tampilkan di pratinjau layar
                     const img = document.createElement('img');
                     img.src = dataURL;
-                    img.alt = `Pratinjau Sisi ${side}`;
+                    img.alt = `Pratinjau Slot ${index + 1}`;
                     img.classList.add('rounded-md');
+                    previewElement.innerHTML = ''; // Kosongkan placeholder
                     previewElement.appendChild(img);
                     
-                    // Setelah unggahan, perbarui layout cetak
+                    // Setelah unggahan, perbarui layout cetak dan status tombol
                     updatePrintLayout();
                     checkReadyToPrint();
                 };
                 reader.readAsDataURL(file);
             } else {
-                imageURLs[side] = null;
+                imageURLs[index] = null;
                 // Jika file dihapus/dibatalkan, kembalikan ke label default
-                previewElement.innerHTML = `<span class="text-xs font-semibold">Sisi ${side.charAt(0).toUpperCase() + side.slice(1)}</span>`;
                 updatePrintLayout();
                 checkReadyToPrint();
             }
         }
         
         /**
-         * Memeriksa apakah kedua sisi sudah diunggah dan mengaktifkan tombol cetak.
+         * Memeriksa apakah minimal satu slot sudah diunggah dan mengaktifkan tombol cetak.
          */
         function checkReadyToPrint() {
             const printButton = document.getElementById('printButton');
             const statusMessage = document.getElementById('statusMessage');
 
-            if (imageURLs.front && imageURLs.back) {
+            // Cek apakah ada minimal satu URL gambar yang tidak null
+            const isReady = imageURLs.some(url => url !== null); 
+
+            if (isReady) {
                 printButton.disabled = false;
                 printButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 printButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
@@ -198,7 +208,7 @@
                 printButton.disabled = true;
                 printButton.classList.add('bg-gray-400', 'cursor-not-allowed');
                 printButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-                printButton.textContent = 'Siap Mencetak (Unggah Kedua Sisi Dahulu)';
+                printButton.textContent = 'Siap Mencetak (Unggah Minimal 1 Foto)';
                 statusMessage.classList.remove('hidden');
             }
         }
@@ -209,23 +219,24 @@
         function updatePrintLayout() {
             const container = document.getElementById('printContainer');
             container.innerHTML = ''; // Kosongkan konten lama
+            let activeSlots = 0;
 
-            if (imageURLs.front && imageURLs.back) {
-                // Tampilkan container cetak
-                container.classList.remove('hidden');
-
-                // Kita akan membuat 4 pasang kartu (Depan - Belakang)
-                for (let i = 0; i < DUP_COUNT; i++) {
-                    // Slot KTP Sisi Depan
-                    const frontSlot = createCardSlot(imageURLs.front);
-                    container.appendChild(frontSlot);
-
-                    // Slot KTP Sisi Belakang
-                    const backSlot = createCardSlot(imageURLs.back);
-                    container.appendChild(backSlot);
+            // Iterasi melalui 8 slot
+            for (let i = 0; i < MAX_SLOTS; i++) {
+                const dataUrl = imageURLs[i];
+                
+                if (dataUrl) {
+                    // Hanya tambahkan slot jika URL gambar ada
+                    const cardSlot = createCardSlot(dataUrl);
+                    container.appendChild(cardSlot);
+                    activeSlots++;
                 }
+            }
+            
+            // Kelola visibilitas container cetak
+            if (activeSlots > 0) {
+                container.classList.remove('hidden');
             } else {
-                // Sembunyikan container cetak jika belum ada gambar yang lengkap
                 container.classList.add('hidden');
             }
         }
