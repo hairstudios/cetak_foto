@@ -44,10 +44,19 @@
                 /* Kita bulatkan menjadi 86mm x 54mm */
                 width: 86mm;
                 height: 54mm;
-                /* Margin agar muat 2 kolom di A4 (2 x 86mm = 172mm, sisa 38mm untuk margin/padding) */
-                margin-right: 18mm; 
+                /* Margin bawah agar ada jarak antar baris */
                 margin-bottom: 5mm;
                 overflow: hidden; /* Penting untuk menjaga ukuran */
+            }
+
+            /* PENTING: Margin untuk kolom KIRI, agar muat 2 kolom di A4 (Total sisa ruang 28mm) */
+            .card-slot.left-column {
+                margin-right: 28mm; 
+            }
+
+            /* PENTING: Margin untuk kolom KANAN, agar baris selanjutnya dimulai dari kiri */
+            .card-slot.right-column {
+                margin-right: 0;
             }
 
             .card-slot img {
@@ -215,11 +224,13 @@
 
         /**
          * Membuat ulang konten di printContainer berdasarkan gambar yang tersedia.
+         * PENTING: Menerapkan logika 2 kolom.
          */
         function updatePrintLayout() {
             const container = document.getElementById('printContainer');
             container.innerHTML = ''; // Kosongkan konten lama
             let activeSlots = 0;
+            let currentColumn = 0; // 0 = kiri, 1 = kanan
 
             // Iterasi melalui 8 slot
             for (let i = 0; i < MAX_SLOTS; i++) {
@@ -228,8 +239,19 @@
                 if (dataUrl) {
                     // Hanya tambahkan slot jika URL gambar ada
                     const cardSlot = createCardSlot(dataUrl);
+                    
+                    // Tentukan apakah slot ini di kolom kiri atau kanan
+                    if (currentColumn % 2 === 0) {
+                        // Kolom Kiri: beri margin kanan 28mm
+                        cardSlot.classList.add('left-column');
+                    } else {
+                        // Kolom Kanan: margin kanan 0, ini akan memaksa wrap ke baris baru
+                        cardSlot.classList.add('right-column');
+                    }
+
                     container.appendChild(cardSlot);
                     activeSlots++;
+                    currentColumn++;
                 }
             }
             
